@@ -1,0 +1,580 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>导航主页 | 知行合一</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.cn/css2?family=Inter:wght@400;500;700&display=swap">
+    <style>
+        :root {
+            /* 白天模式颜色变量 */
+            --bg-color-light: #ffffff;
+            --text-color-light: #1a202c;
+            --text-secondary-light: #4a5568;
+            --card-bg-light: rgba(249, 250, 251, 0.85);
+            --card-hover-shadow-light: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border-color-light: #e2e8f0;
+
+            /* 夜间模式颜色变量 */
+            --bg-color-dark: #111827;
+            --text-color-dark: #f7fafc;
+            --text-secondary-dark: #cbd5e0;
+            --card-bg-dark: rgba(31, 41, 55, 0.8);
+            --card-hover-shadow-dark: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+            --border-color-dark: #2d3748;
+        }
+        
+        html.light {
+            background-color: var(--bg-color-light);
+            color: var(--text-color-light);
+        }
+        
+        html.dark {
+            background-color: var(--bg-color-dark);
+            color: var(--text-color-dark);
+        }
+        
+        body {
+            font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        
+        html.light body {
+            background-image: url('https://images.unsplash.com/photo-1489549132488-d00b7d881cb6?q=80&w=2070&auto=format&fit=crop');
+        }
+        
+        html.dark body {
+            background-image: url('https://images.unsplash.com/photo-1507320950393-d4a4a1b5c428?q=80&w=2070&auto=format&fit=crop');
+        }
+        
+        .search-container, .card, .search-btn-group, #theme-toggle, #back-to-blog {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        
+        .card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            border: 1px solid var(--border-color-light);
+        }
+        
+        html.dark .card {
+            border-color: var(--border-color-dark);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        html.light .card:hover { 
+            box-shadow: var(--card-hover-shadow-light); 
+        }
+        
+        html.dark .card:hover { 
+            box-shadow: var(--card-hover-shadow-dark); 
+        }
+        
+        .search-btn-group button.active {
+            background-color: #4f46e5;
+            color: white;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .category-title {
+            position: relative;
+            display: inline-block;
+            padding-bottom: 0.5rem;
+            color: var(--text-color-light);
+            /* border-bottom: 2px solid #4f46e5; */
+        }
+        
+        html.dark .category-title {
+            color: var(--text-color-dark);
+        }
+        
+        .greeting-text {
+            color: var(--text-color-light);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        html.dark .greeting-text {
+            color: var(--text-color-dark);
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.1);
+        }
+        
+        .time-date {
+            color: var(--text-secondary-light);
+        }
+        
+        html.dark .time-date {
+            color: var(--text-secondary-dark);
+        }
+        
+        .icon-container {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            margin-right: 0.5rem;
+        }
+        
+        .icon-container svg {
+            width: 100%;
+            height: 100%;
+            /* fill: currentColor; */
+        }
+        
+        /* 优化按钮可见性 */
+        .floating-btn {
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #1a202c;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+        
+        html.dark .floating-btn {
+            background-color: rgba(31, 41, 55, 0.9);
+            color: #f7fafc;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
+        }
+        
+        .floating-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+        }
+        
+        html.dark .floating-btn:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 加载动画 */
+        .icon-loading {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+<meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="知行合一" type="application/atom+xml">
+</head>
+<body>
+    <!-- 返回博客按钮 - 优化可见性 -->
+    <a href="/" id="back-to-blog" title="返回博客主页" class="fixed top-4 left-4 p-3 rounded-full floating-btn z-10">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+    </a>
+    
+    <!-- 主题切换按钮 - 优化可见性 -->
+    <button id="theme-toggle" class="fixed top-4 right-4 p-3 rounded-full floating-btn z-10">
+        <svg id="theme-toggle-dark-icon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+        </svg>
+        <svg id="theme-toggle-light-icon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
+        </svg>
+    </button>
+
+    <div class="container mx-auto px-4 py-8 md:py-12">
+        <!-- 紧凑的顶部区域 -->
+        <header class="max-w-3xl mx-auto mb-10">
+            <!-- 第一行：问候语和时间 -->
+            <div class="flex justify-between items-center mb-3">
+                <h1 id="greeting" class="text-2xl font-bold greeting-text"></h1>
+                <p id="time-date" class="text-sm time-date"></p>
+            </div>
+            
+            <!-- 第二行：搜索框和引擎 -->
+            <div class="search-container bg-white/30 dark:bg-gray-800/50 rounded-xl p-2 shadow-lg flex items-center space-x-2 border border-gray-200 dark:border-gray-700">
+                <div class="px-2 text-gray-600 dark:text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+                    </svg>
+                </div>
+                <input type="text" id="search-input" class="flex-grow bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none" placeholder="在网络上搜索...">
+                <div class="search-btn-group bg-white/30 dark:bg-gray-800/50 rounded-full p-1 text-gray-700 dark:text-gray-300 text-xs flex-shrink-0">
+                    <button data-engine="google" class="search-engine-btn active px-3 py-1 rounded-full transition">G</button>
+                    <button data-engine="bing" class="search-engine-btn px-3 py-1 rounded-full transition">B</button>
+                    <button data-engine="baidu" class="search-engine-btn px-3 py-1 rounded-full transition">百</button>
+                    <button data-engine="duckduckgo" class="search-engine-btn px-3 py-1 rounded-full transition">D</button>
+                    <button data-engine="github" class="search-engine-btn px-3 py-1 rounded-full transition">GH</button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            
+            <section class="mb-10">
+                <h2 class="text-xl font-bold category-title mb-4 flex items-center">
+                    <span class="icon-container">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12.22 2h-4.44a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8.38 M18 2l4 4 M16 8h-6 M16 12h-6 M10 16h-2"></path>
+                        </svg>
+                    </span>
+                    常用工具
+                </h2>
+                <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+                    
+                    <a href="https://mail.google.com/" target="_blank" class="card relative p-2.5 rounded-lg flex items-center space-x-2.5 bg-white/70 dark:bg-gray-800/70">
+                        <span class="status-dot absolute top-2 right-2 bg-gray-400" data-url="https://mail.google.com/"></span>
+                        <div class="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-md bg-white dark:bg-gray-700 shadow-sm">
+                        
+                            <img data-url="https://mail.google.com/" alt="Gmail Logo" class="w-full h-full rounded-md object-contain icon-loading">
+                        
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <h3 class="font-medium text-sm text-gray-800 dark:text-gray-100 truncate">Gmail</h3>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 truncate">电子邮件服务</p>
+                        </div>
+                    </a>
+                    
+                </div>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-xl font-bold category-title mb-4 flex items-center">
+                    <span class="icon-container">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 18l6-6-6-6 M8 6l-6 6 6 6"></path>
+                        </svg>
+                    </span>
+                    开发设计
+                </h2>
+                <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+                    
+                    <a href="https://github.com/" target="_blank" class="card relative p-2.5 rounded-lg flex items-center space-x-2.5 bg-white/70 dark:bg-gray-800/70">
+                        <span class="status-dot absolute top-2 right-2 bg-gray-400" data-url="https://github.com/"></span>
+                        <div class="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-md bg-white dark:bg-gray-700 shadow-sm">
+                        
+                            <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://gcore.jsdelivr.net/gh/walkxcode/dashboard-icons/png/github.png" alt="GitHub Logo" class="w-full h-full rounded-md object-contain">
+                        
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <h3 class="font-medium text-sm text-gray-800 dark:text-gray-100 truncate">GitHub</h3>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 truncate">代码托管平台</p>
+                        </div>
+                    </a>
+                    
+                    <a href="https://vercel.com/" target="_blank" class="card relative p-2.5 rounded-lg flex items-center space-x-2.5 bg-white/70 dark:bg-gray-800/70">
+                        <span class="status-dot absolute top-2 right-2 bg-gray-400" data-url="https://vercel.com/"></span>
+                        <div class="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-md bg-white dark:bg-gray-700 shadow-sm">
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
+                                <path d="M2 12l10 10L22 2H2z"></path>
+                            </svg>
+                        
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <h3 class="font-medium text-sm text-gray-800 dark:text-gray-100 truncate">Vercel</h3>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 truncate">静态网站托管</p>
+                        </div>
+                    </a>
+                    
+                    <a href="https://www.figma.com/" target="_blank" class="card relative p-2.5 rounded-lg flex items-center space-x-2.5 bg-white/70 dark:bg-gray-800/70">
+                        <span class="status-dot absolute top-2 right-2 bg-gray-400" data-url="https://www.figma.com/"></span>
+                        <div class="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-md bg-white dark:bg-gray-700 shadow-sm">
+                        
+                            <img data-url="https://www.figma.com/" alt="Figma Logo" class="w-full h-full rounded-md object-contain icon-loading">
+                        
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <h3 class="font-medium text-sm text-gray-800 dark:text-gray-100 truncate">Figma</h3>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 truncate">在线协同设计工具</p>
+                        </div>
+                    </a>
+                    
+                </div>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-xl font-bold category-title mb-4 flex items-center">
+                    <span class="icon-container">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 7l-7 5 7 5V7z M1 5h15v14H1z"></path>
+                        </svg>
+                    </span>
+                    影视
+                </h2>
+                <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+                    
+                    <a href="https://www.youtube.com/" target="_blank" class="card relative p-2.5 rounded-lg flex items-center space-x-2.5 bg-white/70 dark:bg-gray-800/70">
+                        <span class="status-dot absolute top-2 right-2 bg-gray-400" data-url="https://www.youtube.com/"></span>
+                        <div class="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-md bg-white dark:bg-gray-700 shadow-sm">
+                        
+                            <img data-url="https://www.youtube.com/" alt="YouTube Logo" class="w-full h-full rounded-md object-contain icon-loading">
+                        
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <h3 class="font-medium text-sm text-gray-800 dark:text-gray-100 truncate">YouTube</h3>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 truncate">视频分享平台</p>
+                        </div>
+                    </a>
+                    
+                    <a href="http://www.bilibili.com/" target="_blank" class="card relative p-2.5 rounded-lg flex items-center space-x-2.5 bg-white/70 dark:bg-gray-800/70">
+                        <span class="status-dot absolute top-2 right-2 bg-gray-400" data-url="http://www.bilibili.com/"></span>
+                        <div class="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-md bg-white dark:bg-gray-700 shadow-sm">
+                        
+                            <img data-url="http://www.bilibili.com/" alt="bilibili Logo" class="w-full h-full rounded-md object-contain icon-loading">
+                        
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <h3 class="font-medium text-sm text-gray-800 dark:text-gray-100 truncate">bilibili</h3>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 truncate">影视社区</p>
+                        </div>
+                    </a>
+                    
+                    <a href="https://music.163.com/" target="_blank" class="card relative p-2.5 rounded-lg flex items-center space-x-2.5 bg-white/70 dark:bg-gray-800/70">
+                        <span class="status-dot absolute top-2 right-2 bg-gray-400" data-url="https://music.163.com/"></span>
+                        <div class="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-md bg-white dark:bg-gray-700 shadow-sm">
+                        
+                            <img data-url="https://music.163.com/" alt="网易云音乐 Logo" class="w-full h-full rounded-md object-contain icon-loading">
+                        
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <h3 class="font-medium text-sm text-gray-800 dark:text-gray-100 truncate">网易云音乐</h3>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 truncate">在线音乐服务</p>
+                        </div>
+                    </a>
+                    
+                </div>
+            </section>
+            
+        </main>
+    </div>
+
+    <script>
+        // 简单的延迟加载实现
+        document.addEventListener('DOMContentLoaded', function() {
+            const lazyImages = document.querySelectorAll('img[data-lazy-src]');
+            
+            const lazyLoad = () => {
+                lazyImages.forEach(img => {
+                    if (img.getAttribute('data-lazy-loaded') !== 'true') {
+                        const rect = img.getBoundingClientRect();
+                        if (rect.top < window.innerHeight && rect.bottom >= 0) {
+                            img.src = img.getAttribute('data-lazy-src');
+                            img.setAttribute('data-lazy-loaded', 'true');
+                        }
+                    }
+                });
+            };
+            
+            lazyLoad(); // 初始检查
+            window.addEventListener('scroll', lazyLoad);
+            window.addEventListener('resize', lazyLoad);
+        });
+        // 图标错误处理函数 - 提前定义以避免引用错误
+        function handleIconError(imgElement, fallbackChar) {
+            // 使用确定性图标服务，避免随机性
+            const colors = ['4f46e5', 'ef4444', '10b981', 'f59e0b', '8b5cf6'];
+            const color = colors[fallbackChar.charCodeAt(0) % colors.length];
+            imgElement.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fallbackChar)}&backgroundColor=${color}&textColor=ffffff`;
+            imgElement.classList.remove('icon-loading');
+            imgElement.onerror = null; // 防止循环错误
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 主题切换逻辑
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const darkIcon = document.getElementById('theme-toggle-dark-icon');
+            const lightIcon = document.getElementById('theme-toggle-light-icon');
+            
+            function applyTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.classList.remove('light');
+                    lightIcon.classList.remove('hidden');
+                    darkIcon.classList.add('hidden');
+                } else {
+                    document.documentElement.classList.add('light');
+                    document.documentElement.classList.remove('dark');
+                    darkIcon.classList.remove('hidden');
+                    lightIcon.classList.add('hidden');
+                }
+            }
+
+            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            applyTheme(savedTheme);
+
+            themeToggleBtn.addEventListener('click', function() {
+                const newTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+                localStorage.setItem('theme', newTheme);
+                applyTheme(newTheme);
+            });
+            
+            // 时间和问候语
+            const greetingEl = document.getElementById('greeting');
+            const timeDateEl = document.getElementById('time-date');
+            function updateTime() {
+                const now = new Date();
+                const hours = now.getHours();
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const seconds = now.getSeconds().toString().padStart(2, '0');
+                let greetingText = '';
+                if (hours < 6) greetingText = '凌晨好';
+                else if (hours < 12) greetingText = '上午好';
+                else if (hours < 14) greetingText = '中午好';
+                else if (hours < 18) greetingText = '下午好';
+                else greetingText = '晚上好';
+                greetingEl.textContent = greetingText;
+                const dateString = now.toLocaleDateString('zh-CN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                timeDateEl.textContent = `${dateString} ${hours}:${minutes}:${seconds}`;
+            }
+            updateTime();
+            setInterval(updateTime, 1000);
+
+            // 搜索引擎
+            const searchInput = document.getElementById('search-input');
+            const searchButtons = document.querySelectorAll('.search-engine-btn');
+            let activeEngine = 'google';
+            const searchEngines = {
+                google: 'https://www.google.com/search?q=',
+                bing: 'https://www.bing.com/search?q=',
+                baidu: 'https://www.baidu.com/s?wd=',
+                duckduckgo: 'https://duckduckgo.com/?q=',
+                github: 'https://github.com/search?q='
+            };
+            searchButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    searchButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    activeEngine = button.dataset.engine;
+                    searchInput.focus();
+                });
+            });
+            searchInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' && searchInput.value.trim() !== '') {
+                    const query = encodeURIComponent(searchInput.value.trim());
+                    window.open(searchEngines[activeEngine] + query, '_blank');
+                    searchInput.value = '';
+                }
+            });
+
+            // 自动获取图标和检测链接状态
+            const linkCards = document.querySelectorAll('.card');
+            
+            const checkLinkStatus = async (url, statusElement) => {
+                try {
+                    // 使用更可靠的方法检测链接状态
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 5000);
+                    
+                    await fetch(url, { 
+                        method: 'HEAD', 
+                        mode: 'no-cors', 
+                        cache: 'no-store',
+                        signal: controller.signal
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    statusElement.style.backgroundColor = '#22c55e'; // Green
+                } catch (error) {
+                    statusElement.style.backgroundColor = '#ef4444'; // Red
+                }
+            };
+
+            const fetchFavicon = (imgElement) => {
+                const manualLogo = imgElement.dataset.logo;
+                if (manualLogo) {
+                    imgElement.src = manualLogo;
+                    imgElement.classList.remove('icon-loading');
+                    return;
+                }
+
+                const url = imgElement.dataset.url;
+                if (!url) return;
+                
+                try {
+                    const domain = new URL(url).hostname;
+                    // 使用多个备选图标源，提高成功率
+                    const iconSources = [
+                        `https://favicon.yandex.net/favicon/${domain}`,
+                        `https://gcore.jsdelivr.net/gh/walkxcode/dashboard-icons/png/${domain}.png`,
+                        `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
+                        `https://api.iowen.cn/favicon/${domain}.png`,
+
+                    ];
+                    
+                    // 尝试第一个源，如果失败会触发onerror
+                    imgElement.src = iconSources[0];
+                    
+                    // 保存备选源供onerror使用
+                    imgElement.dataset.fallbackSources = JSON.stringify(iconSources.slice(1));
+                } catch (e) {
+                    // URL 无效时，使用备选图标
+                    const fallbackChar = imgElement.alt ? imgElement.alt.charAt(0) : '?';
+                    handleIconError(imgElement, fallbackChar);
+                }
+            };
+
+            // 改进的图标错误处理
+            document.addEventListener('error', function(e) {
+                if (e.target.tagName === 'IMG' && e.target.hasAttribute('data-url')) {
+                    const imgElement = e.target;
+                    const fallbackSources = imgElement.dataset.fallbackSources ? 
+                        JSON.parse(imgElement.dataset.fallbackSources) : [];
+                    
+                    if (fallbackSources.length > 0) {
+                        // 尝试下一个备选源
+                        imgElement.src = fallbackSources[0];
+                        imgElement.dataset.fallbackSources = JSON.stringify(fallbackSources.slice(1));
+                    } else {
+                        // 所有备选源都失败，使用初始字符生成图标
+                        const fallbackChar = imgElement.alt ? imgElement.alt.charAt(0) : '?';
+                        handleIconError(imgElement, fallbackChar);
+                    }
+                }
+            }, true);
+
+            // 为所有需要获取图标的图片添加加载事件
+            linkCards.forEach((card, index) => {
+                const statusDot = card.querySelector('.status-dot');
+                const imgContainer = card.querySelector('div');
+                const img = imgContainer.querySelector('img');
+
+                setTimeout(() => {
+                    if (statusDot && statusDot.dataset.url) {
+                        checkLinkStatus(statusDot.dataset.url, statusDot);
+                    }
+                    if (img && img.dataset.url) {
+                        // 如果图片已经有src（来自EJS渲染），则移除加载动画
+                        if (img.src && img.src !== '') {
+                            img.classList.remove('icon-loading');
+                        } else {
+                            fetchFavicon(img);
+                        }
+                    }
+                }, index * 100);
+            });
+
+            // 处理所有图片的加载完成事件
+            document.querySelectorAll('img').forEach(img => {
+                img.addEventListener('load', function() {
+                    this.classList.remove('icon-loading');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
